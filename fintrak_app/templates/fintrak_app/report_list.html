@@ -1,0 +1,11 @@
+
+<h1>Reports</h1>
+<p><a href="/admin/fintrak_app/report/add/">Add Report via Admin</a></p>
+<ul>
+{% for r in reports %}
+    <li>
+        {{ r.startdate }} to {{ r.enddate }} (Generated: {{ r.generatereport }})
+        <a href="{% url 'report_detail' r.reportid %}" class="button">View Report</a>
+    </li>
+{% endfor %}
+</ul>
