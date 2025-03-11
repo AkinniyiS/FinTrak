@@ -1,8 +1,0 @@
-<h1>Report: {{ report.startdate }} to {{ report.enddate }}</h1>
-<p>Generated: {{ report.generatereport }}</p>
-<h2>Transactions</h2>
-<ul>
-{% for t in transactions %}
-    <li>{{ t.transactionid }}: {{ t.amount }} ({{ t.category }}) on {{ t.date }}</li>
-{% endfor %}
-</ul>
