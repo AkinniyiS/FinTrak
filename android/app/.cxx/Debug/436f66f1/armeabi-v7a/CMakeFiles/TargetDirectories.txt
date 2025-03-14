@@ -1,0 +1,2 @@
+C:/Users/samue/Downloads/fintrak/android/app/.cxx/Debug/436f66f1/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/samue/Downloads/fintrak/android/app/.cxx/Debug/436f66f1/armeabi-v7a/CMakeFiles/rebuild_cache.dir

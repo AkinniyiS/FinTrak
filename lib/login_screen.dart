@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -18,6 +17,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
   String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    checkUserStatus();
+  }
+
+  // Check if the user is already logged in when the screen loads
+  void checkUserStatus() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      // If the user is logged in, navigate directly to the DashboardScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
+      );
+    }
+  }
 
   Future<void> login() async {
     setState(() {
@@ -53,10 +70,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', data['token']); // Save backend token
+      // Directly navigate to DashboardScreen without storing the token locally
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => DashboardScreen()));
+        context,
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
+      );
     } else {
       setState(() {
         errorMessage = jsonDecode(response.body)['error'];
