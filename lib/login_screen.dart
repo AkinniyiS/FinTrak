@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dashboard_screen.dart';
+import 'register_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -21,14 +22,12 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    checkUserStatus();
+    Future.delayed(Duration.zero, checkUserStatus);
   }
 
-  // Check if the user is already logged in when the screen loads
   void checkUserStatus() async {
     User? user = _auth.currentUser;
-    if (user != null) {
-      // If the user is logged in, navigate directly to the DashboardScreen
+    if (user != null && mounted) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => DashboardScreen()),
@@ -37,23 +36,35 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> login() async {
+    if (!mounted) return;
     setState(() {
       isLoading = true;
       errorMessage = null;
     });
 
     try {
-      // Firebase Authentication
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: emailController.text,
+        email: emailController.text.trim(),
         password: passwordController.text,
       );
 
-      String? idToken = await userCredential.user?.getIdToken(); // Get Firebase Token
-      if (idToken != null) {
-        await sendTokenToBackend(idToken);
+      User? user = userCredential.user;
+      if (user != null) {
+        String? idToken = await user.getIdToken();
+        print("Firebase ID Token: $idToken");
+
+        if (idToken != null) {
+          await sendTokenToBackend(idToken);
+        }
+      } else {
+        if (!mounted) return;
+        setState(() {
+          errorMessage = "Login failed. Please try again.";
+          isLoading = false;
+        });
       }
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = e.message;
         isLoading = false;
@@ -62,22 +73,36 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> sendTokenToBackend(String idToken) async {
-    final response = await http.post(
-      Uri.parse('http://your-server-ip:3000/api/auth/firebase'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"token": idToken}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      // Directly navigate to DashboardScreen without storing the token locally
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => DashboardScreen()),
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:4000/api/auth/firebase'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"token": idToken}),
       );
-    } else {
+
+      print("Backend Response: ${response.statusCode} - ${response.body}");
+
+      if (!mounted) return;
+      if (response.statusCode == 200) {
+        Future.delayed(Duration.zero, () {
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => DashboardScreen()),
+            );
+          }
+        });
+      } else {
+        setState(() {
+          errorMessage = jsonDecode(response.body)['error'] ?? "Unknown error";
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
-        errorMessage = jsonDecode(response.body)['error'];
+        errorMessage = "Network error: ${e.toString()}";
+        isLoading = false;
       });
     }
   }
@@ -108,7 +133,19 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: isLoading ? null : login,
-              child: isLoading ? CircularProgressIndicator() : Text("Login"),
+              child: isLoading
+                  ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text("Login"),
+            ),
+            SizedBox(height: 10),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterScreen()),
+                );
+              },
+              child: Text("Don't have an account? Register here"),
             ),
           ],
         ),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "93156499204",
+    "project_id": "fintrak-a2efa",
+    "storage_bucket": "fintrak-a2efa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:93156499204:android:c6cbe93c526ebc8fadfa51",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhx1URZEvN-SRpBPP5pVgscik8ZcTv4q4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

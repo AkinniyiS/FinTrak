@@ -1,7 +1,7 @@
 CREATE DATABASE fintrak_db;
 USE fintrak_db;
 
-CREATE TABLE User (
+CREATE TABLE `user` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -12,18 +12,18 @@ CREATE TABLE User (
     last_login DATETIME
 );
 
-CREATE TABLE Transaction (
+CREATE TABLE `Transaction` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     amount DECIMAL(10,2) NOT NULL,
-    type ENUM('expense', 'income'),
+    type ENUM('expense', 'income') NOT NULL,
     category VARCHAR(255),
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
     description TEXT,
-    FOREIGN KEY (user_id) REFERENCES User(id)
+    FOREIGN KEY (user_id) REFERENCES `User`(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Budget (
+CREATE TABLE `Budget` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     category VARCHAR(255),
@@ -33,15 +33,15 @@ CREATE TABLE Budget (
     setbudget DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatebudget DATETIME,
     checkbudget BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (user_id) REFERENCES User(id)
+    FOREIGN KEY (user_id) REFERENCES `User`(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Report (
+CREATE TABLE `Report` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     report_type VARCHAR(255),
     date_range_start DATETIME,
     date_range_end DATETIME,
     generated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES User(id)
+    FOREIGN KEY (user_id) REFERENCES `User`(id) ON DELETE CASCADE
 );
