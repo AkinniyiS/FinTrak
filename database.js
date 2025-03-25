@@ -2,9 +2,9 @@ const mysql = require('mysql2');
 
 // Set up MySQL connection
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'SamuelAkin',         
-    password: 'Imperfection@123', 
+    host: 'fintrak-db.cfm2aqwg6699.us-east-2.rds.amazonaws.com',
+    user: 'ftdbadmin',         
+    password: 'FinTrak_223', 
     database: 'fintrak_db',          
 });
 
@@ -14,7 +14,7 @@ db.connect((err) => {
         console.error('Error connecting to the database:', err.message);
         return; // Stop execution if the connection fails
     }
-    console.log('Successfully connected to MySQL');
+    console.log('Successfully connected to the database.');
 });
 
 module.exports = db;

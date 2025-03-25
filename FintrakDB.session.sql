@@ -1,7 +1,7 @@
 CREATE DATABASE fintrak_db;
 USE fintrak_db;
 
-CREATE TABLE `user` (
+CREATE TABLE `User` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
