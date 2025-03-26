@@ -26,7 +26,39 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(child: Text("Welcome to your Dashboard!")),
+      body: Center(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              top: 100,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
+                onPressed: () {},
+                child: Text('Budget'),
+              ),
+            ),
+            Positioned(
+              bottom: 150,
+              
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
+                onPressed: () {},
+                child: Text('Report'),
+              ),
+            ),
+            Positioned(
+              bottom: 400,
+              
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
+                onPressed: () {},
+                child: Text('Input Transaction'),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
