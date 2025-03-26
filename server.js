@@ -63,14 +63,14 @@ app.post("/api/auth/firebase", async (req, res) => {
         const decodedToken = await admin.auth().verifyIdToken(token);
         const { email, uid, name } = decodedToken;
 
-        db.query("SELECT * FROM user WHERE email = ?", [email], (err, results) => {
+        db.query("SELECT * FROM User WHERE email = ?", [email], (err, results) => {
             if (err) {
                 console.error("Database error:", err);
                 return res.status(500).json({ error: "Database error" });
             }
 
             if (results.length === 0) {
-                db.query("INSERT INTO user (username, email) VALUES (?, ?)", [name || uid, email], (err, result) => {
+                db.query("INSERT INTO User (username, email) VALUES (?, ?)", [name || uid, email], (err, result) => {
                     if (err) {
                         console.error("Insert error:", err);
                         return res.status(500).json({ error: "Server error" });

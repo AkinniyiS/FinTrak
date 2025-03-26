@@ -2,6 +2,7 @@ const mysql = require('mysql2');
 
 // Set up MySQL connection
 const db = mysql.createConnection({
+    connectionLimit: 10,
     host: 'fintrak-db.cfm2aqwg6699.us-east-2.rds.amazonaws.com',
     user: 'ftdbadmin',         
     password: 'FinTrak_223', 
