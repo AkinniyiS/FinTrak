@@ -11,8 +11,9 @@ class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
-
-class _LoginScreenState extends State<LoginScreen> {
+late AnimationController _controller;
+late Animation<double> _fadeAnimation;
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -22,9 +23,20 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward();
     Future.delayed(Duration.zero, checkUserStatus);
   }
 
+  @override
+  void dispose(){
+    _controller.dispose();
+    super.dispose();
+  }
   void checkUserStatus() async {
     User? user = _auth.currentUser;
     if (user != null && mounted) {
@@ -110,7 +122,17 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+  body: Container(
+    decoration:BoxDecoration(
+      gradient:LinearGradient(
+      colors: [Colors.deepPurple, Colors.pink],
+      begin:Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    ),
+      child: FadeTransition(
+      opacity: _fadeAnimation,
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -150,6 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
       ),
+    ),
+  ),
     );
   }
 }

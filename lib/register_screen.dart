@@ -13,6 +13,8 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
@@ -55,6 +57,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "Content-Type": "application/json",
         },
         body: jsonEncode({
+          "firstName": firstNameController.text.trim(),
+          "lastName": lastNameController.text.trim(),
           "email": emailController.text.trim(),
           "password": passwordController.text,
           "username": usernameController.text.trim(),
@@ -91,6 +95,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
           children: [
             Text("Register", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
+            TextField(
+              controller: firstNameController,
+              decoration: InputDecoration(labelText: "First Name", border: OutlineInputBorder()),
+            ),
+            TextField(
+              controller: lastNameController,
+              decoration: InputDecoration(labelText: "Last Name", border: OutlineInputBorder()),
+            ),
+            SizedBox(height: 10),
+            SizedBox(height: 10),
             TextField(
               controller: usernameController,
               decoration: InputDecoration(labelText: "Username", border: OutlineInputBorder()),

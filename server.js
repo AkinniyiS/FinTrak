@@ -13,7 +13,7 @@ const SECRET_KEY = "your_secret_key";
 
 // 🔹 REGISTER: Save new users in MySQL
 app.post("/api/auth/register", async (req, res) => {
-    const { email, password, username } = req.body;
+    const { firstName, lastName, email, password, username } = req.body;
 
     if (!email || !password || !username) {
         return res.status(400).json({ error: "All fields are required" });
@@ -33,8 +33,8 @@ app.post("/api/auth/register", async (req, res) => {
             const hashedPassword = await bcrypt.hash(password, 10);
 
             db.query(
-                "INSERT INTO User (username, email, password) VALUES (?, ?, ?)",
-                [username, email, hashedPassword],
+                "INSERT INTO User (first_name, last_name, username, email, password) VALUES (?, ?, ?, ?, ?)",
+                [firstName, lastName, username, email, hashedPassword],
                 (err, result) => {
                     if (err) {
                         console.error("Insert error:", err);
