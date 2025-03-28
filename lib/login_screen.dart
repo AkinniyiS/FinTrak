@@ -137,6 +137,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+                "Welcome To FinTrak",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  letterSpacing: 1.5,
+                ),
+              ),
             Text("Login", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
             TextField(
