@@ -122,6 +122,25 @@ app.post("/api/auth/firebase", async (req, res) => {
     }
 });
 
+//Add Transaction
+app.post("/api/transactions/add", async (req, res) => {
+    const { amount } = req.body;
+
+    if (!amount) {
+        return res.status(400).json({ error: "Cost is required" });
+    }
+
+    db.query( "INSERT INTO Transaction (amount) VALUES (?)", [amount], (err, result) => {
+            if (err) {
+                console.error("Insert error:", err);
+                return res.status(500).json({ error: "Server error" });
+            }
+
+            res.status(201).json({ message: "Transaction added successfully" });
+        }
+    );
+});
+
 // Start server
 const PORT = 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
