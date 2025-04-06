@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
+import 'input_transaction_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -52,7 +53,12 @@ class DashboardScreen extends StatelessWidget {
               
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => InputTransactionScreen())
+                  );
+                },
                 child: Text('Input Transaction'),
               ),
             ),
