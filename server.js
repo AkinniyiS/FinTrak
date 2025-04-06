@@ -83,42 +83,45 @@ app.get("/api/accounts/user/:userId", (req, res)=>{
 });
 
 //  LOGIN: Authenticate Firebase Token & Retrieve User from MySQL
-app.post("/api/auth/firebase", async (req, res) => {
-    const { token } = req.body;
+app.post("/api/auth/login", async (req, res) => {
+    const { email, password } = req.body;
 
-    if (!token) {
-        return res.status(400).json({ error: "Token is required" });
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email and Password are required" });
     }
 
     try {
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        const { email, uid, name } = decodedToken;
-
-        db.query("SELECT * FROM User WHERE email = ?", [email], (err, results) => {
+        // Fetch user from MySQL by email
+        db.query("SELECT * FROM User WHERE email = ?", [email], async (err, results) => {
             if (err) {
                 console.error("Database error:", err);
-                return res.status(500).json({ error: "Database error" });
+                return res.status(500).json({ error: "Server error" });
             }
 
             if (results.length === 0) {
-                db.query("INSERT INTO User (username, email) VALUES (?, ?)", [name || uid, email], (err, result) => {
-                    if (err) {
-                        console.error("Insert error:", err);
-                        return res.status(500).json({ error: "Server error" });
-                    }
-
-                    const authToken = jwt.sign({ id: result.insertId, email }, SECRET_KEY, { expiresIn: "1h" });
-
-                    return res.json({ message: "User registered via Firebase", token: authToken });
-                });
-            } else {
-                const authToken = jwt.sign({ id: results[0].id, email }, SECRET_KEY, { expiresIn: "1h" });
-                return res.json({ message: "Login successful", token: authToken });
+                return res.status(400).json({ error: "User not found" });
             }
+
+            // Check if password matches
+            const user = results[0];
+            const passwordMatch = await bcrypt.compare(password, user.password);
+
+            if (!passwordMatch) {
+                return res.status(400).json({ error: "Incorrect password" });
+            }
+
+            // Return user details and userId (along with JWT token)
+            const authToken = jwt.sign({ id: user.id, email }, SECRET_KEY, { expiresIn: "1h" });
+
+            res.json({
+                message: "Login successful",
+                token: authToken,
+                userId: user.id,
+            });
         });
     } catch (error) {
-        console.error("Firebase token error:", error);
-        res.status(401).json({ error: "Invalid Firebase Token" });
+        console.error("Server error:", error);
+        res.status(500).json({ error: "Server error" });
     }
 });
 
