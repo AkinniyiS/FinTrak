@@ -11,7 +11,7 @@ app.use(express.json());
 
 const SECRET_KEY = "your_secret_key";
 
-// 🔹 REGISTER: Save new users in MySQL
+//  REGISTER: Save new users in MySQL
 app.post("/api/auth/register", async (req, res) => {
     const { firstName, lastName, email, password, username } = req.body;
 
@@ -50,8 +50,39 @@ app.post("/api/auth/register", async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 });
+// Add New Accounts
+app.post("/api/accounts", (req,res)=> {
+    const {user_id, account_name, account_type, balance } = req.body;
 
-// 🔹 LOGIN: Authenticate Firebase Token & Retrieve User from MySQL
+    if (!user_id || !account_name || !account_type) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+    const query ='INSERT INTO Account (user_id, account_name, account_type, balance) VALUES (?,?,?,?)';
+    db.query(query, [user_id, account_name, account_type, balance || 0], (err, result)=> {
+        if(err){
+            console.error("Account insert error:", err);
+            return res.status(500).json({ error: "Server error" });
+        }
+
+        res.status(201).json({ message: "Account Created", account_id: result.insertId });
+    });
+});
+// Get Accounts by User
+app.get("/api/accounts/user/:userId", (req, res)=>{
+    const { userId } = req.params;
+    const query = 'SELECT * FROM Account WHERE user_id = ?';
+
+    db.query(query, [userId], (err, results) => {
+        if(err) {
+            console.error("Fetch accounts error:", err);
+            return res.status(500).json ({ error: "Server error" });
+        }
+
+        res.json(results);
+    });
+});
+
+//  LOGIN: Authenticate Firebase Token & Retrieve User from MySQL
 app.post("/api/auth/firebase", async (req, res) => {
     const { token } = req.body;
 
