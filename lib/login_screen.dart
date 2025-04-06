@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +10,8 @@ import 'add_account_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+  
+  get userId => int;
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -52,45 +56,50 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   // Login function to authenticate user
-  Future<void> login() async {
-    if (!mounted) return;
-    setState(() {
-      isLoading = true;
-      errorMessage = null;
-    });
+ Future<void> login() async {
+  if (!mounted) return;
+  setState(() {
+    isLoading = true;
+    errorMessage = null;
+  });
 
-    try {
+  try {
+    // Sign in with Firebase
+    final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      email: emailController.text.trim(),
+      password: passwordController.text,
+    );
+
+    final User? user = userCredential.user;
+
+    if (user != null) {
+      final email = user.email;
+
+      // Send email to backend to get userId
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:4000/api/auth/login'), // Your login API endpoint
+        Uri.parse('http://10.0.2.2:4000/api/auth/get-sql-user'),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "email": emailController.text.trim(),
-          "password": passwordController.text,
-        }),
+        body: jsonEncode({"email": email}),
       );
 
-      final responseData = jsonDecode(response.body);
-
       if (response.statusCode == 200) {
-        String? idToken = responseData['token'];
-        String? userId = responseData['userId']; // Get userId from response
-
-        if (idToken != null && userId != null) {
-          await sendTokenToBackend(idToken, userId);
-        }
+        final responseData = jsonDecode(response.body);
+        final int userId = responseData['userId'];
+        checkUserAccounts(userId.toString());
       } else {
         setState(() {
-          errorMessage = responseData['error'] ?? "Login failed. Please try again.";
+          errorMessage = jsonDecode(response.body)['error'] ?? "Failed to get user from SQL";
           isLoading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        errorMessage = "Network error: ${e.toString()}";
-        isLoading = false;
-      });
     }
+  } catch (e) {
+    setState(() {
+      errorMessage = "Login failed: ${e.toString()}";
+      isLoading = false;
+    });
   }
+}
 
   // Send Firebase token to backend
   Future<void> sendTokenToBackend(String idToken, String userId) async {
@@ -162,67 +171,70 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.deepPurple, Colors.pink],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Welcome To FinTrak",
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                    letterSpacing: 1.5,
-                  ),
+  body: Container(
+    decoration:BoxDecoration(
+      gradient:LinearGradient(
+      colors: [Colors.deepPurple, Colors.pink],
+      begin:Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    ),
+      child: FadeTransition(
+      opacity: _fadeAnimation,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Welcome To FinTrak",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  letterSpacing: 1.5,
                 ),
-                Text("Login", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                SizedBox(height: 20),
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(labelText: "Email", border: OutlineInputBorder()),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: "Password", border: OutlineInputBorder()),
-                ),
-                SizedBox(height: 10),
-                if (errorMessage != null)
-                  Text(errorMessage!, style: TextStyle(color: Colors.red)),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: isLoading ? null : login,
-                  child: isLoading
-                      ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : Text("Login"),
-                ),
-                SizedBox(height: 10),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RegisterScreen()),
-                    );
-                  },
-                  child: Text("Don't have an account? Register here"),
-                ),
-              ],
+              ),
+
+            Text("Login", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            SizedBox(height: 20),
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(labelText: "Email", border: OutlineInputBorder()),
             ),
-          ),
+
+            SizedBox(height: 10),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: InputDecoration(labelText: "Password", border: OutlineInputBorder()),
+            ),
+
+            SizedBox(height: 10),
+            if (errorMessage != null)
+              Text(errorMessage!, style: TextStyle(color: Colors.red)),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: isLoading ? null : login,
+              child: isLoading
+                  ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text("Login"),
+            ),
+
+            SizedBox(height: 10),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterScreen()),
+                );
+              },
+              child: Text("Don't have an account? Register here"),
+            ),
+          ],
         ),
       ),
+    ),
+  ),
     );
   }
 }
