@@ -137,8 +137,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-                "Welcome To FinTrak",
+            Text("Welcome To FinTrak",
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -146,18 +145,21 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   letterSpacing: 1.5,
                 ),
               ),
+
             Text("Login", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
             TextField(
               controller: emailController,
               decoration: InputDecoration(labelText: "Email", border: OutlineInputBorder()),
             ),
+
             SizedBox(height: 10),
             TextField(
               controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(labelText: "Password", border: OutlineInputBorder()),
             ),
+
             SizedBox(height: 10),
             if (errorMessage != null)
               Text(errorMessage!, style: TextStyle(color: Colors.red)),
@@ -168,6 +170,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                   : Text("Login"),
             ),
+
             SizedBox(height: 10),
             TextButton(
               onPressed: () {
