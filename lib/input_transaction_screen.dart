@@ -18,7 +18,7 @@ class _InputTransactionScreenState extends State<InputTransactionScreen> {
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"cost": amountController.text}),
+      body: jsonEncode({"amount": amountController.text}),
     );
 
     if (response.statusCode == 201) {

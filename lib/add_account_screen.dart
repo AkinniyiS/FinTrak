@@ -83,8 +83,18 @@ class AddAccountScreen extends StatefulWidget {
                       ))
                     .toList(),
                   onChanged: (val) => setState(() => accountType = val!),
-                  decoration: InputDecoration(labelText: 'Initial Balance'),
-                  onSaved: (val) => balance = double.tryParse(val ?? '0')?? 0,
+                  decoration: InputDecoration(labelText: 'Account Type'),
+                ),
+                SizedBox(height: 12),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Initial Balance'),
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                validator: (val) {
+                  if (val == null || val.isEmpty) return 'Required';
+                  if (double.tryParse(val) == null) return 'Enter a valid number';
+                  return null;
+                },
+                onSaved: (val) => balance = double.tryParse(val!) ?? 0,
                 ),
                 SizedBox(height: 24),
                 ElevatedButton(
