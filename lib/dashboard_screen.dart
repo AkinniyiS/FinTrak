@@ -2,10 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
 import 'input_transaction_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+class DashboardScreen extends StatefulWidget {
+  final int userId;
+  const DashboardScreen({super.key, required this.userId});
 
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProviderStateMixin{
+  double balance = 0.00;
+  bool showBalance = false;
+
+  @override
+  void initState(){
+  super.initState();
+  fetchBalance();
+}
+
+Future<void> fetchBalance() async {
+  final url =Uri.parse('http://10.0.2.2:4000/api/user/${widget.userId}/balance');
+
+  try{
+    final response = await http.get(url);
+    if(response.statusCode == 200){
+      final data = jsonDecode(response.body);
+      setState(() {
+        balance = data['balance']?? 0.00;
+        showBalance = true;
+      });
+    }else{
+      print('Error fetching balance');
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}
   // Logout the user using FirebaseAuth
   Future<void> logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut(); // Sign out using FirebaseAuth
@@ -14,6 +49,7 @@ class DashboardScreen extends StatelessWidget {
       MaterialPageRoute(builder: (context) => LoginScreen()),
     );
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -27,43 +63,48 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned(
-              top: 100,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
-                onPressed: () {},
-                child: Text('Budget'),
+      body: Column(
+        children: [
+          Expanded(
+            flex: 5,
+            child: Center(
+              child: AnimatedOpacity(
+                opacity: showBalance ? 1.0 : 0.0,
+                duration: Duration(seconds: 2),
+                child: Text(
+                  '\$${balance.toStringAsFixed(2)}',
+                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-            Positioned(
-              bottom: 150,
-              
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
-                onPressed: () {},
-                child: Text('Report'),
-              ),
+          ),
+          Expanded(
+            flex: 5,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => InputTransactionScreen()),
+                    );
+                  },
+                  child: Text('Input Transaction'),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
+                  onPressed: () {
+                    // Add functionality or leave empty for now
+                  },
+                  child: Text('Report'),
+                ),
+              ],
             ),
-            Positioned(
-              bottom: 400,
-              
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => InputTransactionScreen())
-                  );
-                },
-                child: Text('Input Transaction'),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
