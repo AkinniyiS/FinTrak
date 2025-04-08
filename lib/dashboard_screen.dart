@@ -30,8 +30,10 @@ Future<void> fetchBalance() async {
     final response = await http.get(url);
     if(response.statusCode == 200){
       final data = jsonDecode(response.body);
+      print('Fetched balance: ${data['balance']}');
+
       setState(() {
-        balance = data['balance']?? 0.00;
+        balance = (data['balance'] as num).toDouble();
         showBalance = true;
       });
     }else{
@@ -97,7 +99,7 @@ Future<void> fetchBalance() async {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
                   onPressed: () {
-                    // Add functionality or leave empty for now
+                   //empty for now
                   },
                   child: Text('Report'),
                 ),
