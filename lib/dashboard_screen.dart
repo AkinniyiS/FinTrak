@@ -20,30 +20,31 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
   @override
   void initState(){
-  super.initState();
-  fetchBalance();
-}
-
-Future<void> fetchBalance() async {
-  final url =Uri.parse('http://10.0.2.2:4000/api/user/${widget.userId}/balance');
-
-  try{
-    final response = await http.get(url);
-    if(response.statusCode == 200){
-      final data = jsonDecode(response.body);
-      print('Fetched balance: ${data['balance']}');
-
-      setState(() {
-        balance = (data['balance'] as num).toDouble();
-        showBalance = true;
-      });
-    }else{
-      print('Error fetching balance');
-    }
-  } catch (e) {
-    print('Error: $e');
+    super.initState();
+    fetchBalance();
   }
-}
+
+  Future<void> fetchBalance() async {
+    final url =Uri.parse('http://10.0.2.2:4000/api/user/${widget.userId}/balance');
+
+    try{
+      final response = await http.get(url);
+      if(response.statusCode == 200){
+        final data = jsonDecode(response.body);
+        print('Fetched balance: ${data['balance']}');
+
+        setState(() {
+          balance = (data['balance'] as num).toDouble();
+          showBalance = true;
+        });
+      }else{
+        print('Error fetching balance');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   // Logout the user using FirebaseAuth
   Future<void> logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut(); // Sign out using FirebaseAuth
@@ -52,7 +53,6 @@ Future<void> fetchBalance() async {
       MaterialPageRoute(builder: (context) => LoginScreen()),
     );
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +76,7 @@ Future<void> fetchBalance() async {
                 opacity: showBalance ? 1.0 : 0.0,
                 duration: Duration(seconds: 2),
                 child: Text(
-                  '\$${balance.toStringAsFixed(2)}',
+                  'Balance: \$${balance.toStringAsFixed(2)}',
                   style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -84,26 +84,82 @@ Future<void> fetchBalance() async {
           ),
           Expanded(
             flex: 5,
-            child: Column(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
-                  onPressed: () {
+          
+                GestureDetector(
+                  onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => InputTransactionScreen()),
                     );
                   },
-                  child: Text('Input Transaction'),
+                  child: Container(
+                    width: 150,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 7, 89, 59), // Background color
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Input Transaction',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 7, 89, 59)),
-                  onPressed: () {
-                   //empty for now
+                SizedBox(width: 0), 
+                
+                GestureDetector(
+                  onTap: () {
+                    // empty for now
                   },
-                  child: Text('Report'),
+                  child: Container(
+                    width: 150,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 7, 89, 59), // Background color
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(12),
+                        bottomRight: Radius.circular(12),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Report',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

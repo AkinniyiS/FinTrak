@@ -98,14 +98,14 @@ app.get("/api/accounts/user/:userId", async (req, res) => {
 
 // Add Transaction
 app.post("/api/transactions/add", async (req, res) => {
-  const { amount } = req.body;
+  const { amount, account_id } = req.body;
 
-  if (!amount) {
+  if (!amount ) {
     return res.status(400).json({ error: "Cost is required" });
   }
 
   try {
-    //  Using async/await for database query
+    // Insert transaction into database with account_id
     await db.query("INSERT INTO Transaction (amount) VALUES (?)", [amount]); 
 
     res.status(201).json({ message: "Transaction added successfully" });
