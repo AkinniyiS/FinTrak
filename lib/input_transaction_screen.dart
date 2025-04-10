@@ -1,3 +1,4 @@
+import 'package:fintrak/gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -37,7 +38,8 @@ class _InputTransactionScreenState extends State<InputTransactionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Input Transaction")),
-      body: Padding(
+      body: GradientBackground(
+        child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -54,6 +56,7 @@ class _InputTransactionScreenState extends State<InputTransactionScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

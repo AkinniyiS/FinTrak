@@ -16,10 +16,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: const Color.fromARGB(255, 2, 75, 20), // Color for AppBar and other elements
-        scaffoldBackgroundColor: const Color.fromARGB(255, 84, 226, 18), // Background color for screens
-        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: const Color.fromARGB(255, 63, 23, 205)), // Accent color
-      ),
+  primaryColor: const Color.fromARGB(255, 2, 75, 20),
+  colorScheme: ColorScheme.fromSwatch().copyWith(
+    secondary: const Color.fromARGB(255, 63, 23, 205),
+  ),
+),
       home: LoginScreen(),
     );
   }

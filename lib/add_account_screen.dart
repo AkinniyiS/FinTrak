@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:fintrak/gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dashboard_screen.dart';
 
 class AddAccountScreen extends StatefulWidget {
   final int userId;
@@ -43,7 +45,12 @@ class AddAccountScreen extends StatefulWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Account created!')),
           );
-          Navigator.pushReplacementNamed(context, '/dashboard');
+          Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DashboardScreen(userId: widget.userId),
+        ),
+      );
         }else{
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${responseData['error']}')),
@@ -62,7 +69,8 @@ class AddAccountScreen extends StatefulWidget {
     Widget build(BuildContext context){
       return Scaffold(
         appBar: AppBar(title: Text('Add New Account')),
-        body: Padding(
+        body: GradientBackground(
+          child:Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
@@ -107,6 +115,7 @@ class AddAccountScreen extends StatefulWidget {
             ),
           ),
         ),
+      ),
       );
     }
   }

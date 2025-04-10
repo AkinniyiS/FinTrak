@@ -4,6 +4,7 @@ import 'login_screen.dart';
 import 'input_transaction_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'gradient.dart';
 
 class DashboardScreen extends StatefulWidget {
   final int userId;
@@ -65,7 +66,8 @@ Future<void> fetchBalance() async {
           ),
         ],
       ),
-      body: Column(
+      body: GradientBackground(
+        child: Column(
         children: [
           Expanded(
             flex: 5,
@@ -108,6 +110,7 @@ Future<void> fetchBalance() async {
           ),
         ],
       ),
+    ),
     );
   }
 }

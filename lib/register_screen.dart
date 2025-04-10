@@ -1,3 +1,4 @@
+import 'package:fintrak/gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
@@ -88,7 +89,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+      body: GradientBackground(
+        child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -142,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }
