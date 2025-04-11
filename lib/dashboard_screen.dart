@@ -94,7 +94,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => InputTransactionScreen()),
+                      MaterialPageRoute(builder: (context) => InputTransactionScreen(accountId: widget.accountId)),
                     );
                   },
                   

@@ -89,7 +89,7 @@ app.post("/api/accounts", async (req, res) => {
   }
 });
 
-// Get Accounts by User
+
 // Get Accounts by User
 app.get("/api/accounts/user/:userId", async (req, res) => {
   const { userId } = req.params;
@@ -106,15 +106,17 @@ app.get("/api/accounts/user/:userId", async (req, res) => {
 
 // Add Transaction
 app.post("/api/transactions/add", async (req, res) => {
-  const { amount, account_id } = req.body;
+  const { amount, account_id, type, category, description } = req.body;
 
-  if (!amount ) {
-    return res.status(400).json({ error: "Cost is required" });
+  if (!amount || !account_id || !type || !category) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    // Insert transaction into database with account_id
-    await db.query("INSERT INTO Transaction (amount, account_id) VALUES (?, ?)", [amount, account_id]);
+    await db.query(
+      "INSERT INTO Transaction (amount, account_id, type, category, description) VALUES (?, ?, ?, ?, ?)",
+      [amount, account_id, type, category, description || ""]
+    );
 
     res.status(201).json({ message: "Transaction added successfully" });
   } catch (err) {
@@ -122,7 +124,6 @@ app.post("/api/transactions/add", async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 });
-
 // Fetch user's account balance from SQL
 app.get('/api/accounts/:accountId/balance', async (req, res) => {
   const accountId = req.params.accountId;
