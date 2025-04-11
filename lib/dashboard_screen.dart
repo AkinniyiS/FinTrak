@@ -5,10 +5,12 @@ import 'input_transaction_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'gradient.dart';
+import 'account_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final int userId;
-  const DashboardScreen({super.key, required this.userId});
+  final int accountId;
+  const DashboardScreen({super.key, required this.userId, required this.accountId,});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -25,7 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   }
 
   Future<void> fetchBalance() async {
-    final url =Uri.parse('http://10.0.2.2:4000/api/user/${widget.userId}/balance');
+    final url = Uri.parse('http://10.0.2.2:4000/api/accounts/${widget.accountId}/balance');
 
     try{
       final response = await http.get(url);
@@ -95,6 +97,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                       MaterialPageRoute(builder: (context) => InputTransactionScreen()),
                     );
                   },
+                  
                   child: Container(
                     width: 150,
                     height: 100,
@@ -131,6 +134,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                   onTap: () {
                     // empty for now
                   },
+                  
                   child: Container(
                     width: 150,
                     height: 100,
@@ -157,16 +161,35 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 7, 89, 59),
+                  minimumSize: Size(double.infinity, 50),
+                ),
+                icon: Icon(Icons.list),
+                label: Text("View Accounts"),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AccountListScreen(userId: widget.userId), 
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 }

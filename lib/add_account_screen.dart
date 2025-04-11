@@ -41,16 +41,23 @@ class AddAccountScreen extends StatefulWidget {
 
         final responseData = jsonDecode(response.body);
 
-        if (response.statusCode == 201){
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Account created!')),
-          );
-          Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DashboardScreen(userId: widget.userId),
-        ),
-      );
+        if (response.statusCode == 201) {
+  final responseData = jsonDecode(response.body);
+  final int accountId = responseData['account_id']; // Get the account ID
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Account created!')),
+  );
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => DashboardScreen(
+        userId: widget.userId,
+        accountId: accountId,  // Pass the new account ID
+      ),
+    ),
+  );
+
         }else{
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${responseData['error']}')),

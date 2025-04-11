@@ -4,6 +4,10 @@ const db = require("./database"); // MySQL connection
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+const headers = {
+  'X-Firebase-Locale': 'en',  // Use a valid locale code like 'en' or 'es'
+};
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -44,12 +48,14 @@ app.post("/api/auth/register", async (req, res) => {
 //Get User ID by Email (after Firebase login)
 app.post("/api/auth/get-sql-user", async (req, res) => {
   const { email } = req.body;
+  console.log("Email received:", email); // 🧪
 
   if (!email) return res.status(400).json({ error: "Email is required" });
 
   try {
-    // Using async/await for database query
-    const [results] = await db.query("SELECT id FROM User WHERE email = ?", [email]); 
+    const [results] = await db.query("SELECT id FROM User WHERE email = ?", [email]);
+
+    console.log("DB results:", results); // 🧪
 
     if (results.length === 0) {
       return res.status(404).json({ error: "User not found" });
@@ -57,9 +63,11 @@ app.post("/api/auth/get-sql-user", async (req, res) => {
 
     res.json({ userId: results[0].id });
   } catch (err) {
+    console.error("Server error:", err); // 🧪
     return res.status(500).json({ error: "Server error" });
   }
 });
+
 
 // Add New Account
 app.post("/api/accounts", async (req, res) => {
@@ -82,12 +90,12 @@ app.post("/api/accounts", async (req, res) => {
 });
 
 // Get Accounts by User
+// Get Accounts by User
 app.get("/api/accounts/user/:userId", async (req, res) => {
   const { userId } = req.params;
 
-  const query = "SELECT * FROM Account WHERE user_id = ?";
+  const query = "SELECT account_id, account_name, account_type FROM Account WHERE user_id = ?"; // Select specific columns
   try {
-    // Using async/await for database query
     const [results] = await db.query(query, [userId]); 
 
     res.json(results);
@@ -106,7 +114,7 @@ app.post("/api/transactions/add", async (req, res) => {
 
   try {
     // Insert transaction into database with account_id
-    await db.query("INSERT INTO Transaction (amount) VALUES (?)", [amount]); 
+    await db.query("INSERT INTO Transaction (amount, account_id) VALUES (?, ?)", [amount, account_id]);
 
     res.status(201).json({ message: "Transaction added successfully" });
   } catch (err) {
@@ -116,29 +124,18 @@ app.post("/api/transactions/add", async (req, res) => {
 });
 
 // Fetch user's account balance from SQL
-app.get('/api/user/:id/balance', async (req, res) => {
-  const userId = req.params.id;
+app.get('/api/accounts/:accountId/balance', async (req, res) => {
+  const accountId = req.params.accountId;
 
   try {
-    // Using async/await for database query
-    const [rows] = await db.query( 
-      'SELECT balance FROM Account WHERE user_id = ?',
-      [userId]
-    ); 
-    
+    const [rows] = await db.query(
+      'SELECT balance FROM Account WHERE account_id = ?',
+      [accountId]
+    );
+
     if (rows.length > 0) {
-      // Grab balance from the query
-      let balance = rows[0].balance;
-
-      // If balance is null, set it to 0.00
-      if (balance === null) {
-        balance = 0.00;
-      }
-
-      // Ensure it's a float before sending
-      balance = parseFloat(balance);
-      
-      res.json({ balance });
+      let balance = rows[0].balance ?? 0.00;
+      res.json({ balance: parseFloat(balance) });
     } else {
       res.status(404).json({ error: 'Account not found' });
     }
@@ -147,6 +144,7 @@ app.get('/api/user/:id/balance', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 /// Start server
 const PORT = 4000;

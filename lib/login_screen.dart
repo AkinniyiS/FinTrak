@@ -68,15 +68,29 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         );
 
         if (response.statusCode == 200) {
-          final responseData = jsonDecode(response.body);
-          final int userId = responseData['userId'];
-          checkUserAccounts(userId);
-        } else {
-          setState(() {
-            errorMessage = jsonDecode(response.body)['error'] ?? "Failed to get user from SQL";
-            isLoading = false;
-          });
-        }
+  print('Login response body: ${response.body}');
+
+  final responseData = jsonDecode(response.body);
+
+  if (responseData['userId'] == null) {
+    setState(() {
+      errorMessage = "User ID not found in response.";
+      isLoading = false;
+    });
+    return;
+  }
+
+  final int userId = responseData['userId'];
+  print('Parsed userId: $userId');
+
+  checkUserAccounts(userId);
+} else {
+  print('Login failed with response: ${response.body}');
+  setState(() {
+    errorMessage = jsonDecode(response.body)['error'] ?? "Failed to get user from SQL";
+    isLoading = false;
+  });
+}
       }
     } catch (e) {
       setState(() {
@@ -95,22 +109,28 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
+        print('Raw response: ${response.body}');
         if (data.isEmpty) {
-          // Redirect to Add Account screen if no accounts are found
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => AddAccountScreen(userId: userId)),
-          );
-        } else {
-          // Proceed to dashboard if accounts are found
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DashboardScreen(userId: userId), // Pass the userId 
-            ),
-          );
-        }
+  // Redirect to Add Account screen if no accounts are found
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => AddAccountScreen(userId: userId)),
+  );
+} else {
+  // Get the first account's ID
+  final int accountId = data[0]['account_id']; 
+
+  // Proceed to dashboard
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => DashboardScreen(
+        userId: userId,
+        accountId: accountId,
+      ),
+    ),
+  );
+}
       } else {
         setState(() {
           errorMessage = "Failed to check accounts";
