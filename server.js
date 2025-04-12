@@ -126,6 +126,22 @@ app.post("/api/transactions/add", async (req, res) => {
       "INSERT INTO Transaction (amount, account_id, type, category, description) VALUES (?, ?, ?, ?, ?)",
       [parsedAmount, account_id, type, category, description || ""]
     );
+    // Get all transactions for an account (including date)
+    app.get("/api/transactions/account/:accountId", async (req, res) => {
+      const { accountId } = req.params;
+    
+      try {
+        const [transactions] = await db.query(
+          "SELECT category, amount, description, date, type FROM Transaction WHERE account_id = ? ORDER BY date DESC",
+          [accountId]
+        );
+    
+        res.json(transactions);
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+        res.status(500).json({ error: "Server error" });
+      }
+    });
 
     // Get current balance
     const [rows] = await connection.query(

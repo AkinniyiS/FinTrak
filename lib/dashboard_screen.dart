@@ -6,11 +6,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'gradient.dart';
 import 'account_list_screen.dart';
+import 'package:fintrak/transaction_history_screen.dart'; 
 
 class DashboardScreen extends StatefulWidget {
   final int userId;
   final int accountId;
-  const DashboardScreen({super.key, required this.userId, required this.accountId,});
+  const DashboardScreen({super.key, required this.userId, required this.accountId});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -39,7 +40,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
           balance = (data['balance'] as num).toDouble();
           showBalance = true;
         });
-      }else{
+      } else {
         print('Error fetching balance');
       }
     } catch (e) {
@@ -70,103 +71,99 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
       ),
       body: GradientBackground(
         child: Column(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Center(
-              child: AnimatedOpacity(
-                opacity: showBalance ? 1.0 : 0.0,
-                duration: Duration(seconds: 2),
-                child: Text(
-                  'Balance: \$${balance.toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+          children: [
+            Expanded(
+              flex: 5,
+              child: Center(
+                child: AnimatedOpacity(
+                  opacity: showBalance ? 1.0 : 0.0,
+                  duration: Duration(seconds: 2),
+                  child: Text(
+                    'Balance: \$${balance.toStringAsFixed(2)}',
+                    style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-          
-                GestureDetector(
-                  onTap: () async {
-            final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-             builder: (context) => InputTransactionScreen(accountId: widget.accountId),
-            ),
-          );
-
-  if (result == true) {
-    fetchBalance(); // refresh balance after transaction
-  }
-},
-                  
-                  child: Container(
-                    width: 150,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 7, 89, 59), // Background color
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        bottomLeft: Radius.circular(12),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 6,
-                          offset: Offset(0, 4),
+            Expanded(
+              flex: 5,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TransactionHistoryScreen(accountId: widget.accountId),
                         ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Input Transaction',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      );
+
+                      if (result == true) {
+                        fetchBalance(); // Refresh balance after transaction
+                      }
+                    },
+                    child: Container(
+                      width: 150,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 7, 89, 59), // Background color
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          bottomLeft: Radius.circular(12),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Transactions',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: 0), 
-                
-                GestureDetector(
-                  onTap: () {
-                    // empty for now
-                  },
-                  
-                  child: Container(
-                    width: 150,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 7, 89, 59), // Background color
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
+                  SizedBox(width: 0),
+                  GestureDetector(
+                    onTap: () {
+                      // empty for now
+                    },
+                    child: Container(
+                      width: 150,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 7, 89, 59), // Background color
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(12),
+                          bottomRight: Radius.circular(12),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 6,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Report',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: Center(
+                        child: Text(
+                          'Report',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),

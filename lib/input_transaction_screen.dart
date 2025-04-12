@@ -27,7 +27,8 @@ class _InputTransactionScreenState extends State<InputTransactionScreen> {
     'Insurance',
     'Education',
     'Shopping/Entertainment',
-    'Dining'
+    'Dining',
+    'Work'
   ];
 
   Future<void> addTransaction() async {
@@ -49,7 +50,9 @@ class _InputTransactionScreenState extends State<InputTransactionScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text('Transaction added!')),
    );
-    Navigator.pop(context, true); //Trigger dashboard refresh
+    amountController.clear();
+    descriptionController.clear();
+    Navigator.pop(context, true);
 
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
