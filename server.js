@@ -104,7 +104,7 @@ app.get("/api/accounts/user/:userId", async (req, res) => {
   }
 });
 
-// Add Transaction
+// /api/transactions/add route to adjust account balance
 app.post("/api/transactions/add", async (req, res) => {
   const { amount, account_id, type, category, description } = req.body;
 
@@ -112,18 +112,54 @@ app.post("/api/transactions/add", async (req, res) => {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
+  const parsedAmount = parseFloat(amount);
+  if (isNaN(parsedAmount)) {
+    return res.status(400).json({ error: "Invalid amount" });
+  }
+
+  const connection = await db.getConnection();
   try {
-    await db.query(
+    await connection.beginTransaction();
+
+    // Insert the transaction
+    await connection.query(
       "INSERT INTO Transaction (amount, account_id, type, category, description) VALUES (?, ?, ?, ?, ?)",
-      [amount, account_id, type, category, description || ""]
+      [parsedAmount, account_id, type, category, description || ""]
     );
 
-    res.status(201).json({ message: "Transaction added successfully" });
+    // Get current balance
+    const [rows] = await connection.query(
+      "SELECT balance FROM Account WHERE account_id = ?",
+      [account_id]
+    );
+
+    if (rows.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ error: "Account not found" });
+    }
+
+    const currentBalance = parseFloat(rows[0].balance);
+    const newBalance = type === "Income"
+      ? currentBalance + parsedAmount
+      : currentBalance - parsedAmount;
+
+    // Update the account's balance
+    await connection.query(
+      "UPDATE Account SET balance = ? WHERE account_id = ?",
+      [newBalance, account_id]
+    );
+
+    await connection.commit();
+    res.status(201).json({ message: "Transaction added and balance updated", newBalance });
   } catch (err) {
-    console.error("Insert error:", err);
-    return res.status(500).json({ error: "Server error" });
+    await connection.rollback();
+    console.error("Transaction error:", err);
+    res.status(500).json({ error: "Server error" });
+  } finally {
+    connection.release();
   }
 });
+
 // Fetch user's account balance from SQL
 app.get('/api/accounts/:accountId/balance', async (req, res) => {
   const accountId = req.params.accountId;

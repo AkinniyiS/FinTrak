@@ -91,12 +91,18 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
               children: [
           
                 GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => InputTransactionScreen(accountId: widget.accountId)),
-                    );
-                  },
+                  onTap: () async {
+            final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+             builder: (context) => InputTransactionScreen(accountId: widget.accountId),
+            ),
+          );
+
+  if (result == true) {
+    fetchBalance(); // refresh balance after transaction
+  }
+},
                   
                   child: Container(
                     width: 150,

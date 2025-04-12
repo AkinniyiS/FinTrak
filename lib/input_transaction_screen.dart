@@ -46,11 +46,11 @@ class _InputTransactionScreenState extends State<InputTransactionScreen> {
     );
 
     if (response.statusCode == 201) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Transaction added!')),
-      );
-      amountController.clear();
-      descriptionController.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Transaction added!')),
+   );
+    Navigator.pop(context, true); //Trigger dashboard refresh
+
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error adding transaction')),
