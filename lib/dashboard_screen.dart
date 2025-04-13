@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'gradient.dart';
 import 'account_list_screen.dart';
 import 'package:fintrak/transaction_history_screen.dart'; 
+import 'report_screen.dart';
+
 
 class DashboardScreen extends StatefulWidget {
   final int userId;
@@ -136,8 +138,17 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                   SizedBox(width: 0),
                   GestureDetector(
                     onTap: () {
-                      // empty for now
-                    },
+              Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ReportScreen(
+                 accountId: widget.accountId,
+                  userId: widget.userId,
+                ),
+              ),
+           );
+          },
+
                     child: Container(
                       width: 150,
                       height: 100,

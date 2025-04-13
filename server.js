@@ -68,7 +68,6 @@ app.post("/api/auth/get-sql-user", async (req, res) => {
   }
 });
 
-
 // Add New Account
 app.post("/api/accounts", async (req, res) => {
   const { user_id, account_name, account_type, balance } = req.body;
@@ -88,7 +87,6 @@ app.post("/api/accounts", async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 });
-
 
 // Get Accounts by User
 app.get("/api/accounts/user/:userId", async (req, res) => {
@@ -126,22 +124,6 @@ app.post("/api/transactions/add", async (req, res) => {
       "INSERT INTO Transaction (amount, account_id, type, category, description) VALUES (?, ?, ?, ?, ?)",
       [parsedAmount, account_id, type, category, description || ""]
     );
-    // Get all transactions for an account (including date)
-    app.get("/api/transactions/account/:accountId", async (req, res) => {
-      const { accountId } = req.params;
-    
-      try {
-        const [transactions] = await db.query(
-          "SELECT category, amount, description, date, type FROM Transaction WHERE account_id = ? ORDER BY date DESC",
-          [accountId]
-        );
-    
-        res.json(transactions);
-      } catch (err) {
-        console.error("Error fetching transactions:", err);
-        res.status(500).json({ error: "Server error" });
-      }
-    });
 
     // Get current balance
     const [rows] = await connection.query(
@@ -176,6 +158,23 @@ app.post("/api/transactions/add", async (req, res) => {
   }
 });
 
+// Get transactions for a specific account
+app.get("/api/transactions/account/:accountId", async (req, res) => {
+  const { accountId } = req.params;
+
+  try {
+    const [transactions] = await db.query(
+      "SELECT category, amount, description, date, type FROM Transaction WHERE account_id = ? ORDER BY date DESC",
+      [accountId]
+    );
+
+    res.json(transactions);
+  } catch (err) {
+    console.error("Error fetching transactions:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // Fetch user's account balance from SQL
 app.get('/api/accounts/:accountId/balance', async (req, res) => {
   const accountId = req.params.accountId;
@@ -198,7 +197,48 @@ app.get('/api/accounts/:accountId/balance', async (req, res) => {
   }
 });
 
+// Add Report Generation Route
+app.post("/api/reports/generate", async (req, res) => {
+  const { user_id, account_id, report_type, date_range_start, date_range_end } = req.body;
 
-/// Start server
+  if (!user_id || !account_id || !report_type || !date_range_start || !date_range_end) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    const [summary] = await db.query(
+      `SELECT category, SUM(amount) as total_amount
+       FROM Transaction
+       WHERE account_id = ?
+         AND type = ?
+         AND date BETWEEN ? AND ?
+       GROUP BY category`,
+      [account_id, report_type, date_range_start, date_range_end]
+    );
+
+    console.log("Report summary:", summary);
+
+    // Log the response if it's empty
+    if (summary.length === 0) {
+      console.log("No data found for the given query");
+    }
+    
+    await db.query(
+      `INSERT INTO Report (user_id, account_id, report_type, date_range_start, date_range_end, generated_at)
+       VALUES (?, ?, ?, ?, ?, NOW())`,
+      [user_id, account_id, report_type, date_range_start, date_range_end]
+    );
+
+    res.json({
+      message: "Report generated",
+      data: summary // Wrap summary in a data field
+    });
+  } catch (err) {
+    console.error("Error generating report:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Start server
 const PORT = 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
