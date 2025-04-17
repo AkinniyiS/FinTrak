@@ -48,14 +48,14 @@ app.post("/api/auth/register", async (req, res) => {
 //Get User ID by Email (after Firebase login)
 app.post("/api/auth/get-sql-user", async (req, res) => {
   const { email } = req.body;
-  console.log("Email received:", email); // 🧪
+  console.log("Email received:", email); 
 
   if (!email) return res.status(400).json({ error: "Email is required" });
 
   try {
     const [results] = await db.query("SELECT id FROM User WHERE email = ?", [email]);
 
-    console.log("DB results:", results); // 🧪
+    console.log("DB results:", results); 
 
     if (results.length === 0) {
       return res.status(404).json({ error: "User not found" });
@@ -63,7 +63,7 @@ app.post("/api/auth/get-sql-user", async (req, res) => {
 
     res.json({ userId: results[0].id });
   } catch (err) {
-    console.error("Server error:", err); // 🧪
+    console.error("Server error:", err); 
     return res.status(500).json({ error: "Server error" });
   }
 });

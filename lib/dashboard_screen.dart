@@ -168,7 +168,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                       ),
                       child: Center(
                         child: Text(
-                          'Report',
+                          'Financial Report',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
